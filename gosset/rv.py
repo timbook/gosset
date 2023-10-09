@@ -8,6 +8,9 @@ class RandomVariable:
     def sample(self, *args, **kwargs):
         return self._rv.rvs(*args, **kwargs)
 
+    def prob_between(self, a, b):
+        return self.cdf(max(a, b)) - self.cdf(min(a, b))
+
     @property
     def mean(self):
         return self._rv.mean()
