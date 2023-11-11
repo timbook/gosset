@@ -58,7 +58,7 @@ class OneSampleT(HypothesisTest):
 
         self.reject = True if self.pvalue < self.alpha else False
 
-    def interpretation(self, return_html):
+    def interpretation(self, return_html=True):
         alpha_text = r'$\alpha$' if return_html else 'alpha'
         alt_text = {
             'two-sided': 'not equal to',
@@ -73,7 +73,6 @@ class OneSampleT(HypothesisTest):
 
         return HTML(concl_text) if return_html else concl_text
 
-    @property
     def hypotheses(self):
 
         alt_sym = {
@@ -86,3 +85,33 @@ class OneSampleT(HypothesisTest):
         alt = f"H_A: \mu {alt_sym} {self.mu_0}"
 
         return HTML(f"$${null}$$\n$${alt}$$")
+
+class OneSampleTFromStats(OneSampleT):
+    def __init__(self, xbar, sd, n, mu_0=0, alternative='two-sided', alpha=0.05):
+        self.mu_0 = mu_0
+        self.alternative = alternative
+        self.alpha = alpha
+
+        self.xbar = xbar
+        self.sd = sd
+        self.n = n
+
+        self.run_test()
+
+    def run_test(self):
+        self.se = self.sd / np.sqrt(self.n)
+        self.stat = self.t = (self.xbar - self.mu_0) / self.se
+        self.df = self.n - 1
+        self.distn = T(df=self.df)
+        self.t0 = self.distn.quantile(self.alpha/2)
+
+        if self.alternative == 'two-sided':
+            self.pvalue = 2*self.distn.cdf(-np.abs(self.t))
+        elif self.alternative == 'less':
+            self.pvalue = self.distn.cdf(self.t)
+        elif self.alternative == 'greater':
+            self.pvalue = 1 - self.distn.cdf(self.t)
+        else:
+            raise ValueError("Valid alternative values: 'two-sided', 'less', or 'greater'")
+
+        self.reject = True if self.pvalue < self.alpha else False
