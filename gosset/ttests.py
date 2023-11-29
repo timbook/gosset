@@ -27,11 +27,23 @@ class HypothesisTest:
         else:
             raise ValueError("Supported formats: 'tupple' or 'dict'.")
 
+    def summary(self):
+        display(self.hypotheses())
+        display(HTML(f"${self._stat_sym}$ = {self.stat}"))
+        display(HTML(f"$p$-value = {self.pvalue}"))
+        display(self.interpretation())
+
+    @property
+    def reject(self):
+        True if self.pvalue < self.alpha else False
+
 class OneSampleT(HypothesisTest):
     def __init__(self, data, mu_0=0, alternative='two-sided', alpha=0.05, na_drop=True, copy_data=False):
 
         self.mu_0 = mu_0
         self.alternative = alternative
+        self._stat_sym = 't'
+        self.ref_stat = -self.distn.quantile(self.alpha/2)
 
         super().__init__(data, alpha, na_drop, copy_data)
 
@@ -45,7 +57,6 @@ class OneSampleT(HypothesisTest):
         self.stat = self.t = (self.xbar - self.mu_0) / self.se
         self.df = self.n - 1
         self.distn = T(df=self.df)
-        self.t0 = self.distn.quantile(self.alpha/2)
 
         if self.alternative == 'two-sided':
             self.pvalue = 2*self.distn.cdf(-np.abs(self.t))
@@ -55,8 +66,6 @@ class OneSampleT(HypothesisTest):
             self.pvalue = 1 - self.distn.cdf(self.t)
         else:
             raise ValueError("Valid alternative values: 'two-sided', 'less', or 'greater'")
-
-        self.reject = True if self.pvalue < self.alpha else False
 
     def interpretation(self, return_html=True):
         alpha_text = r'$\alpha$' if return_html else 'alpha'
@@ -86,11 +95,15 @@ class OneSampleT(HypothesisTest):
 
         return HTML(f"$${null}$$\n$${alt}$$")
 
+
+
 class OneSampleTFromStats(OneSampleT):
     def __init__(self, xbar, sd, n, mu_0=0, alternative='two-sided', alpha=0.05):
         self.mu_0 = mu_0
         self.alternative = alternative
         self.alpha = alpha
+        self._stat_sym = 't'
+        self.ref_stat = -self.distn.quantile(self.alpha/2)
 
         self.xbar = xbar
         self.sd = sd
@@ -103,7 +116,6 @@ class OneSampleTFromStats(OneSampleT):
         self.stat = self.t = (self.xbar - self.mu_0) / self.se
         self.df = self.n - 1
         self.distn = T(df=self.df)
-        self.t0 = self.distn.quantile(self.alpha/2)
 
         if self.alternative == 'two-sided':
             self.pvalue = 2*self.distn.cdf(-np.abs(self.t))
