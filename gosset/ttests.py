@@ -1,6 +1,6 @@
 import numpy as np
 from IPython.core.display import HTML
-from .t import T
+from .rvs.t import T
 
 class HypothesisTest:
     def __init__(self, data, alpha, na_drop, copy_data):
