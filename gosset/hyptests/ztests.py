@@ -1,24 +1,24 @@
 import numpy as np
 from .hyptest import HypothesisTest
-from ..rvs.t import T
+from ..rvs.normal import StandardNormal
 
-class OneSampleT(HypothesisTest):
-    def __init__(self, data, mu_0=0, alternative='two-sided', alpha=0.05):
+class OneSampleZ(HypothesisTest):
+    def __init__(self, data, sigma=1, mu_0=0, alternative='two-sided', alpha=0.05):
         self.mu_0 = mu_0
+        self.sigma = sigma
         self.alpha = alpha
         self.alternative = alternative
-        self._stat_sym = 't'
+        self._stat_sym = 'z'
         self.startup(data)
 
     def _run_test(self, data):
         self.n = len(data)
-        self.df = self.n - 1
         self.xbar = np.mean(data)
-        self.sd = np.std(data, ddof=1)
+        self.sd = self.sigma
         self.se = self.sd / np.sqrt(self.n)
-        self.distn = T(df=self.df)
-        self.null_stat = self.t0 = self.distn.quantile(1 - self.alpha/2)
-        self.stat = self.t = (self.xbar - self.mu_0) / self.se
+        self.distn = StandardNormal()
+        self.null_stat = self.z0 = self.distn.quantile(1 - self.alpha/2)
+        self.stat = self.z = (self.xbar - self.mu_0) / self.se
 
         if self.alternative in ['two-sided', 'ne', '!=']:
             self.pvalue = 2*self.distn.cdf(-np.abs(self.t))
@@ -35,15 +35,15 @@ class OneSampleT(HypothesisTest):
         self.text_h0 = f"\mu = {self.mu_0}"
         self.text_ha = f"\mu {self.alt_sym} {self.mu_0}"
 
-class OneSampleTFromStats(HypothesisTest):
-    def __init__(self, xbar, sd, n, mu_0=0, alternative='two-sided', alpha=0.05):
+class OneSampleZFromStats(HypothesisTest):
+    def __init__(self, xbar, sigma, n, mu_0=0, alternative='two-sided', alpha=0.05):
         self.mu_0 = mu_0
         self.alpha = alpha
         self.alternative = alternative
-        self._stat_sym = 't'
+        self._stat_sym = 'z'
 
         self.xbar = xbar
-        self.sd = sd
+        self.sd = sigma
         self.n = n
 
         self.startup_from_stats()
@@ -51,9 +51,9 @@ class OneSampleTFromStats(HypothesisTest):
     def _run_test(self):
         self.se = self.sd / np.sqrt(self.n)
         self.df = self.n - 1
-        self.distn = T(df=self.df)
-        self.null_stat = self.t0 = self.distn.quantile(1 - self.alpha/2)
-        self.stat = self.t = (self.xbar - self.mu_0) / self.se
+        self.distn = StandardNormal()
+        self.null_stat = self.z0 = self.distn.quantile(1 - self.alpha/2)
+        self.stat = self.z = (self.xbar - self.mu_0) / self.se
 
         if self.alternative in ['two-sided', 'ne', '!=']:
             self.pvalue = 2*self.distn.cdf(-np.abs(self.t))
