@@ -2,7 +2,7 @@ from scipy import stats
 from .rv import ContinuousRV
 
 class Normal(ContinuousRV):
-    def __init__(self, mu, sigma):
+    def __init__(self, mu=0, sigma=1):
         self.mu = mu
         self.sigma = sigma
         self._rv = stats.norm(loc=mu, scale=sigma)

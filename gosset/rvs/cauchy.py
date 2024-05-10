@@ -2,7 +2,7 @@ from scipy import stats
 from .rv import ContinuousRV
 
 class Cauchy(ContinuousRV):
-    def __init__(self, theta, sigma):
+    def __init__(self, theta=0, sigma=1):
         self.theta = theta
         self.sigma = sigma
         self._rv = stats.cauchy(loc=theta, scale=sigma)
