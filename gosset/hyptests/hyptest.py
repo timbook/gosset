@@ -15,6 +15,9 @@ class HypothesisTest:
         self._na_check(data)
         self._run_test(data)
 
+    def startup_from_stats(self):
+        self._run_test()
+
     def _na_check(self, data):
         if np.any(np.isnan(np.array(data))):
             raise ValueError("Missing values detected in the data.")

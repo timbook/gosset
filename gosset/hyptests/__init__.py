@@ -1,2 +1,2 @@
 # Hypothesis Tests
-from .ttests import OneSampleT
+from .ttests import OneSampleT, OneSampleTFromStats
